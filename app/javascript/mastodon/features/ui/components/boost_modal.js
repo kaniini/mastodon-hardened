@@ -11,26 +11,24 @@ import DisplayName from '../../../components/display_name';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 
 const messages = defineMessages({
-  reblog: { id: 'status.reblog', defaultMessage: 'Boost' }
+  reblog: { id: 'status.reblog', defaultMessage: 'Boost' },
 });
 
 class BoostModal extends ImmutablePureComponent {
 
   static contextTypes = {
-    router: PropTypes.object
+    router: PropTypes.object,
   };
 
   static propTypes = {
     status: ImmutablePropTypes.map.isRequired,
     onReblog: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
-    intl: PropTypes.object.isRequired
+    intl: PropTypes.object.isRequired,
   };
 
-  constructor (props, context) {
-    super(props, context);
-    this.handleReblog = this.handleReblog.bind(this);
-    this.handleAccountClick = this.handleAccountClick.bind(this);
+  componentDidMount() {
+    this.button.focus();
   }
 
   handleReblog = () => {
@@ -42,8 +40,12 @@ class BoostModal extends ImmutablePureComponent {
     if (e.button === 0) {
       e.preventDefault();
       this.props.onClose();
-      this.context.router.push(`/accounts/${this.props.status.getIn(['account', 'id'])}`);
+      this.context.router.history.push(`/accounts/${this.props.status.getIn(['account', 'id'])}`);
     }
+  }
+
+  setRef = (c) => {
+    this.button = c;
   }
 
   render () {
@@ -73,7 +75,7 @@ class BoostModal extends ImmutablePureComponent {
 
         <div className='boost-modal__action-bar'>
           <div><FormattedMessage id='boost_modal.combo' defaultMessage='You can press {combo} to skip this next time' values={{ combo: <span>Shift + <i className='fa fa-retweet' /></span> }} /></div>
-          <Button text={intl.formatMessage(messages.reblog)} onClick={this.handleReblog} />
+          <Button text={intl.formatMessage(messages.reblog)} onClick={this.handleReblog} ref={this.setRef} />
         </div>
       </div>
     );

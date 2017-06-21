@@ -1,34 +1,8 @@
 import React from 'react';
 import ColumnHeader from './column_header';
 import PropTypes from 'prop-types';
-
-const easingOutQuint = (x, t, b, c, d) => c*((t=t/d-1)*t*t*t*t + 1) + b;
-
-const scrollTop = (node) => {
-  const startTime = Date.now();
-  const offset    = node.scrollTop;
-  const targetY   = -offset;
-  const duration  = 1000;
-  let interrupt   = false;
-
-  const step = () => {
-    const elapsed    = Date.now() - startTime;
-    const percentage = elapsed / duration;
-
-    if (percentage > 1 || interrupt) {
-      return;
-    }
-
-    node.scrollTop = easingOutQuint(0, elapsed, offset, targetY, duration);
-    requestAnimationFrame(step);
-  };
-
-  step();
-
-  return () => {
-    interrupt = true;
-  };
-};
+import { debounce } from 'lodash';
+import scrollTop from '../../../scroll';
 
 class Column extends React.PureComponent {
 
@@ -37,22 +11,24 @@ class Column extends React.PureComponent {
     icon: PropTypes.string,
     children: PropTypes.node,
     active: PropTypes.bool,
-    hideHeadingOnMobile: PropTypes.bool
+    hideHeadingOnMobile: PropTypes.bool,
   };
 
   handleHeaderClick = () => {
     const scrollable = this.node.querySelector('.scrollable');
+
     if (!scrollable) {
       return;
     }
+
     this._interruptScrollAnimation = scrollTop(scrollable);
   }
 
-  handleWheel = () => {
+  handleScroll = debounce(() => {
     if (typeof this._interruptScrollAnimation !== 'undefined') {
       this._interruptScrollAnimation();
     }
-  }
+  }, 200)
 
   setRef = (c) => {
     this.node = c;
@@ -61,12 +37,12 @@ class Column extends React.PureComponent {
   render () {
     const { heading, icon, children, active, hideHeadingOnMobile } = this.props;
 
-    let columnHeaderId = null
+    let columnHeaderId = null;
     let header = '';
 
     if (heading) {
-      columnHeaderId = heading.replace(/ /g, '-')
-      header = <ColumnHeader icon={icon} active={active} type={heading} onClick={this.handleHeaderClick} hideOnMobile={hideHeadingOnMobile} columnHeaderId={columnHeaderId}/>;
+      columnHeaderId = heading.replace(/ /g, '-');
+      header = <ColumnHeader icon={icon} active={active} type={heading} onClick={this.handleHeaderClick} hideOnMobile={hideHeadingOnMobile} columnHeaderId={columnHeaderId} />;
     }
     return (
       <div
@@ -74,7 +50,8 @@ class Column extends React.PureComponent {
         role='region'
         aria-labelledby={columnHeaderId}
         className='column'
-        onWheel={this.handleWheel}>
+        onScroll={this.handleScroll}
+      >
         {header}
         {children}
       </div>

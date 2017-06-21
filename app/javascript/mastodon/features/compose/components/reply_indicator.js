@@ -9,19 +9,19 @@ import { defineMessages, injectIntl } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 
 const messages = defineMessages({
-  cancel: { id: 'reply_indicator.cancel', defaultMessage: 'Cancel' }
+  cancel: { id: 'reply_indicator.cancel', defaultMessage: 'Cancel' },
 });
 
 class ReplyIndicator extends ImmutablePureComponent {
 
   static contextTypes = {
-    router: PropTypes.object
+    router: PropTypes.object,
   };
 
   static propTypes = {
     status: ImmutablePropTypes.map,
     onCancel: PropTypes.func.isRequired,
-    intl: PropTypes.object.isRequired
+    intl: PropTypes.object.isRequired,
   };
 
   handleClick = () => {
@@ -31,7 +31,7 @@ class ReplyIndicator extends ImmutablePureComponent {
   handleAccountClick = (e) => {
     if (e.button === 0) {
       e.preventDefault();
-      this.context.router.push(`/accounts/${this.props.status.getIn(['account', 'id'])}`);
+      this.context.router.history.push(`/accounts/${this.props.status.getIn(['account', 'id'])}`);
     }
   }
 

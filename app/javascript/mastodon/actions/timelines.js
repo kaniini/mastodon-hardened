@@ -1,4 +1,4 @@
-import api, { getLinks } from '../api'
+import api, { getLinks } from '../api';
 import Immutable from 'immutable';
 
 export const TIMELINE_UPDATE  = 'TIMELINE_UPDATE';
@@ -23,7 +23,7 @@ export function refreshTimelineSuccess(timeline, statuses, skipLoading, next) {
     timeline,
     statuses,
     skipLoading,
-    next
+    next,
   };
 };
 
@@ -35,7 +35,7 @@ export function updateTimeline(timeline, status) {
       type: TIMELINE_UPDATE,
       timeline,
       status,
-      references
+      references,
     });
   };
 };
@@ -51,100 +51,98 @@ export function deleteFromTimelines(id) {
       id,
       accountId,
       references,
-      reblogOf
+      reblogOf,
     });
   };
 };
 
-export function refreshTimelineRequest(timeline, id, skipLoading) {
+export function refreshTimelineRequest(timeline, skipLoading) {
   return {
     type: TIMELINE_REFRESH_REQUEST,
     timeline,
-    id,
-    skipLoading
+    skipLoading,
   };
 };
 
-export function refreshTimeline(timeline, id = null) {
+export function refreshTimeline(timelineId, path, params = {}) {
   return function (dispatch, getState) {
-    if (getState().getIn(['timelines', timeline, 'isLoading'])) {
+    const timeline = getState().getIn(['timelines', timelineId], Immutable.Map());
+
+    if (timeline.get('isLoading') || timeline.get('online')) {
       return;
     }
 
-    const ids      = getState().getIn(['timelines', timeline, 'items'], Immutable.List());
+    const ids      = timeline.get('items', Immutable.List());
     const newestId = ids.size > 0 ? ids.first() : null;
-    let params     = getState().getIn(['timelines', timeline, 'params'], {});
-    const path     = getState().getIn(['timelines', timeline, 'path'])(id);
 
-    let skipLoading = false;
+    let skipLoading = timeline.get('loaded');
 
-    if (newestId !== null && getState().getIn(['timelines', timeline, 'loaded']) && (id === null || getState().getIn(['timelines', timeline, 'id']) === id)) {
-      if (id === null && getState().getIn(['timelines', timeline, 'online'])) {
-        // Skip refreshing when timeline is live anyway
-        return;
-      }
-
-      params          = { ...params, since_id: newestId };
-      skipLoading     = true;
-    } else if (getState().getIn(['timelines', timeline, 'loaded'])) {
-      skipLoading = true;
+    if (newestId !== null) {
+      params.since_id = newestId;
     }
 
-    dispatch(refreshTimelineRequest(timeline, id, skipLoading));
+    dispatch(refreshTimelineRequest(timelineId, skipLoading));
 
     api(getState).get(path, { params }).then(response => {
       const next = getLinks(response).refs.find(link => link.rel === 'next');
-      dispatch(refreshTimelineSuccess(timeline, response.data, skipLoading, next ? next.uri : null));
+      dispatch(refreshTimelineSuccess(timelineId, response.data, skipLoading, next ? next.uri : null));
     }).catch(error => {
-      dispatch(refreshTimelineFail(timeline, error, skipLoading));
+      dispatch(refreshTimelineFail(timelineId, error, skipLoading));
     });
   };
 };
+
+export const refreshHomeTimeline         = () => refreshTimeline('home', '/api/v1/timelines/home');
+export const refreshPublicTimeline       = () => refreshTimeline('public', '/api/v1/timelines/public');
+export const refreshCommunityTimeline    = () => refreshTimeline('community', '/api/v1/timelines/public', { local: true });
+export const refreshAccountTimeline      = accountId => refreshTimeline(`account:${accountId}`, `/api/v1/accounts/${accountId}/statuses`);
+export const refreshAccountMediaTimeline = accountId => refreshTimeline(`account:${accountId}:media`, `/api/v1/accounts/${accountId}/statuses`, { only_media: true });
+export const refreshHashtagTimeline      = hashtag => refreshTimeline(`hashtag:${hashtag}`, `/api/v1/timelines/tag/${hashtag}`);
 
 export function refreshTimelineFail(timeline, error, skipLoading) {
   return {
     type: TIMELINE_REFRESH_FAIL,
     timeline,
     error,
-    skipLoading
+    skipLoading,
+    skipAlert: error.response.status === 404,
   };
 };
 
-export function expandTimeline(timeline) {
+export function expandTimeline(timelineId, path, params = {}) {
   return (dispatch, getState) => {
-    if (getState().getIn(['timelines', timeline, 'isLoading'])) {
+    const timeline = getState().getIn(['timelines', timelineId], Immutable.Map());
+    const ids      = timeline.get('items', Immutable.List());
+
+    if (timeline.get('isLoading') || ids.size === 0) {
       return;
     }
 
-    if (getState().getIn(['timelines', timeline, 'items']).size === 0) {
-      return;
-    }
+    params.max_id = ids.last();
+    params.limit  = 10;
 
-    const path   = getState().getIn(['timelines', timeline, 'path'])(getState().getIn(['timelines', timeline, 'id']));
-    const params = getState().getIn(['timelines', timeline, 'params'], {});
-    const lastId = getState().getIn(['timelines', timeline, 'items']).last();
+    dispatch(expandTimelineRequest(timelineId));
 
-    dispatch(expandTimelineRequest(timeline));
-
-    api(getState).get(path, {
-      params: {
-        ...params,
-        max_id: lastId,
-        limit: 10
-      }
-    }).then(response => {
+    api(getState).get(path, { params }).then(response => {
       const next = getLinks(response).refs.find(link => link.rel === 'next');
-      dispatch(expandTimelineSuccess(timeline, response.data, next ? next.uri : null));
+      dispatch(expandTimelineSuccess(timelineId, response.data, next ? next.uri : null));
     }).catch(error => {
-      dispatch(expandTimelineFail(timeline, error));
+      dispatch(expandTimelineFail(timelineId, error));
     });
   };
 };
 
+export const expandHomeTimeline         = () => expandTimeline('home', '/api/v1/timelines/home');
+export const expandPublicTimeline       = () => expandTimeline('public', '/api/v1/timelines/public');
+export const expandCommunityTimeline    = () => expandTimeline('community', '/api/v1/timelines/public', { local: true });
+export const expandAccountTimeline      = accountId => expandTimeline(`account:${accountId}`, `/api/v1/accounts/${accountId}/statuses`);
+export const expandAccountMediaTimeline = accountId => expandTimeline(`account:${accountId}:media`, `/api/v1/accounts/${accountId}/statuses`, { only_media: true });
+export const expandHashtagTimeline      = hashtag => expandTimeline(`hashtag:${hashtag}`, `/api/v1/timelines/tag/${hashtag}`);
+
 export function expandTimelineRequest(timeline) {
   return {
     type: TIMELINE_EXPAND_REQUEST,
-    timeline
+    timeline,
   };
 };
 
@@ -153,7 +151,7 @@ export function expandTimelineSuccess(timeline, statuses, next) {
     type: TIMELINE_EXPAND_SUCCESS,
     timeline,
     statuses,
-    next
+    next,
   };
 };
 
@@ -161,7 +159,7 @@ export function expandTimelineFail(timeline, error) {
   return {
     type: TIMELINE_EXPAND_FAIL,
     timeline,
-    error
+    error,
   };
 };
 
@@ -169,20 +167,20 @@ export function scrollTopTimeline(timeline, top) {
   return {
     type: TIMELINE_SCROLL_TOP,
     timeline,
-    top
+    top,
   };
 };
 
 export function connectTimeline(timeline) {
   return {
     type: TIMELINE_CONNECT,
-    timeline
+    timeline,
   };
 };
 
 export function disconnectTimeline(timeline) {
   return {
     type: TIMELINE_DISCONNECT,
-    timeline
+    timeline,
   };
 };

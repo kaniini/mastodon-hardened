@@ -6,7 +6,7 @@ import LoadingIndicator from '../../components/loading_indicator';
 import {
   fetchAccount,
   fetchFollowing,
-  expandFollowing
+  expandFollowing,
 } from '../../actions/accounts';
 import { ScrollContainer } from 'react-router-scroll';
 import AccountContainer from '../../containers/account_container';
@@ -17,7 +17,8 @@ import ColumnBackButton from '../../components/column_back_button';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 
 const mapStateToProps = (state, props) => ({
-  accountIds: state.getIn(['user_lists', 'following', Number(props.params.accountId), 'items'])
+  accountIds: state.getIn(['user_lists', 'following', Number(props.params.accountId), 'items']),
+  hasMore: !!state.getIn(['user_lists', 'following', Number(props.params.accountId), 'next']),
 });
 
 class Following extends ImmutablePureComponent {
@@ -25,7 +26,8 @@ class Following extends ImmutablePureComponent {
   static propTypes = {
     params: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
-    accountIds: ImmutablePropTypes.list
+    accountIds: ImmutablePropTypes.list,
+    hasMore: PropTypes.bool,
   };
 
   componentWillMount () {
@@ -43,7 +45,7 @@ class Following extends ImmutablePureComponent {
   handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
 
-    if (scrollTop === scrollHeight - clientHeight) {
+    if (scrollTop === scrollHeight - clientHeight && this.props.hasMore) {
       this.props.dispatch(expandFollowing(Number(this.props.params.accountId)));
     }
   }
@@ -54,7 +56,9 @@ class Following extends ImmutablePureComponent {
   }
 
   render () {
-    const { accountIds } = this.props;
+    const { accountIds, hasMore } = this.props;
+
+    let loadMore = null;
 
     if (!accountIds) {
       return (
@@ -62,6 +66,10 @@ class Following extends ImmutablePureComponent {
           <LoadingIndicator />
         </Column>
       );
+    }
+
+    if (hasMore) {
+      loadMore = <LoadMore onClick={this.handleLoadMore} />;
     }
 
     return (
@@ -73,7 +81,7 @@ class Following extends ImmutablePureComponent {
             <div className='following'>
               <HeaderContainer accountId={this.props.params.accountId} />
               {accountIds.map(id => <AccountContainer key={id} id={id} withNote={false} />)}
-              <LoadMore onClick={this.handleLoadMore} />
+              {loadMore}
             </div>
           </div>
         </ScrollContainer>

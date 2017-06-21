@@ -1,69 +1,48 @@
-import emojify from 'mastodon/emoji';
 import { length } from 'stringz';
-import { default as dateFormat } from 'date-fns/format';
-import distanceInWordsStrict from 'date-fns/distance_in_words_strict';
+import IntlRelativeFormat from 'intl-relativeformat';
 import { delegate } from 'rails-ujs';
-import Rails from 'rails-ujs';
+import emojify from '../mastodon/emoji';
+import { getLocale } from '../mastodon/locales';
+import loadPolyfills from '../mastodon/load_polyfills';
 
 require.context('../images/', true);
 
-Rails.start();
+const { localeData } = getLocale();
+localeData.forEach(IntlRelativeFormat.__addLocaleData);
 
-const parseFormat = (format) => format.replace(/%(\w)/g, (_, modifier) => {
-  switch (modifier) {
-  case '%':
-    return '%';
-  case 'a':
-    return 'ddd';
-  case 'A':
-    return 'ddd';
-  case 'b':
-    return 'MMM';
-  case 'B':
-    return 'MMMM';
-  case 'd':
-    return 'DD';
-  case 'H':
-    return 'HH';
-  case 'I':
-    return 'hh';
-  case 'l':
-    return 'H';
-  case 'm':
-    return 'M';
-  case 'M':
-    return 'mm';
-  case 'p':
-    return 'A';
-  case 'S':
-    return 'ss';
-  case 'w':
-    return 'd';
-  case 'y':
-    return 'YY';
-  case 'Y':
-    return 'YYYY';
-  default:
-    return `%${modifier}`;
-  }
-});
+function loaded() {
+  const locale = document.documentElement.lang;
+  const dateTimeFormat = new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  });
+  const relativeFormat = new IntlRelativeFormat(locale);
 
-document.addEventListener('DOMContentLoaded', () => {
-  for (const content of document.getElementsByClassName('emojify')) {
+  [].forEach.call(document.querySelectorAll('.emojify'), (content) => {
     content.innerHTML = emojify(content.innerHTML);
-  }
+  });
 
-  for (const content of document.querySelectorAll('time[data-format]')) {
-    const format = parseFormat(content.dataset.format);
-    const formattedDate = dateFormat(content.getAttribute('datetime'), format);
+  [].forEach.call(document.querySelectorAll('time.formatted'), (content) => {
+    const datetime = new Date(content.getAttribute('datetime'));
+    const formattedDate = dateTimeFormat.format(datetime);
+    content.title = formattedDate;
     content.textContent = formattedDate;
-  }
+  });
 
-  for (const content of document.querySelectorAll('time.time-ago')) {
-    const timeAgo = distanceInWordsStrict(new Date(), content.getAttribute('datetime'), {
-      addSuffix: true,
-    });
-    content.textContent = timeAgo;
+  [].forEach.call(document.querySelectorAll('time.time-ago'), (content) => {
+    const datetime = new Date(content.getAttribute('datetime'));
+    content.textContent = relativeFormat.format(datetime);;
+  });
+}
+
+function main() {
+  if (['interactive', 'complete'].includes(document.readyState)) {
+    loaded();
+  } else {
+    document.addEventListener('DOMContentLoaded', loaded);
   }
 
   delegate(document, '.video-player video', 'click', ({ target }) => {
@@ -99,12 +78,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   delegate(document, '.account_display_name', 'input', ({ target }) => {
-    const [nameCounter, ] = document.getElementsByClassName('name-counter');
-    nameCounter.textContent = 30 - length(target.value);
+    const nameCounter = document.querySelector('.name-counter');
+    if (nameCounter) {
+      nameCounter.textContent = 30 - length(target.value);
+    }
   });
 
   delegate(document, '.account_note', 'input', ({ target }) => {
-    const [noteCounter, ] = document.getElementsByClassName('.note-counter');
-    noteCounter.textContent = 160 - length(target.value);
+    const noteCounter = document.querySelector('.note-counter');
+    if (noteCounter) {
+      noteCounter.textContent = 160 - length(target.value);
+    }
   });
+}
+
+loadPolyfills().then(main).catch(error => {
+  console.error(error);
 });

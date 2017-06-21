@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import IconButton from './icon_button';
 import DropdownMenu from './dropdown_menu';
 import { defineMessages, injectIntl } from 'react-intl';
+import ImmutablePureComponent from 'react-immutable-pure-component';
 
 const messages = defineMessages({
   delete: { id: 'status.delete', defaultMessage: 'Delete' },
@@ -16,13 +17,15 @@ const messages = defineMessages({
   cannot_reblog: { id: 'status.cannot_reblog', defaultMessage: 'This post cannot be boosted' },
   favourite: { id: 'status.favourite', defaultMessage: 'Favourite' },
   open: { id: 'status.open', defaultMessage: 'Expand this status' },
-  report: { id: 'status.report', defaultMessage: 'Report @{name}' }
+  report: { id: 'status.report', defaultMessage: 'Report @{name}' },
+  muteConversation: { id: 'status.mute_conversation', defaultMessage: 'Mute conversation' },
+  unmuteConversation: { id: 'status.unmute_conversation', defaultMessage: 'Unmute conversation' },
 });
 
-class StatusActionBar extends React.PureComponent {
+class StatusActionBar extends ImmutablePureComponent {
 
   static contextTypes = {
-    router: PropTypes.object
+    router: PropTypes.object,
   };
 
   static propTypes = {
@@ -35,12 +38,22 @@ class StatusActionBar extends React.PureComponent {
     onMute: PropTypes.func,
     onBlock: PropTypes.func,
     onReport: PropTypes.func,
+    onMuteConversation: PropTypes.func,
     me: PropTypes.number.isRequired,
-    intl: PropTypes.object.isRequired
+    withDismiss: PropTypes.bool,
+    intl: PropTypes.object.isRequired,
   };
 
+  // Avoid checking props that are functions (and whose equality will always
+  // evaluate to false. See react-immutable-pure-component for usage.
+  updateOnProps = [
+    'status',
+    'me',
+    'withDismiss',
+  ]
+
   handleReplyClick = () => {
-    this.props.onReply(this.props.status, this.context.router);
+    this.props.onReply(this.props.status, this.context.router.history);
   }
 
   handleFavouriteClick = () => {
@@ -56,7 +69,7 @@ class StatusActionBar extends React.PureComponent {
   }
 
   handleMentionClick = () => {
-    this.props.onMention(this.props.status.get('account'), this.context.router);
+    this.props.onMention(this.props.status.get('account'), this.context.router.history);
   }
 
   handleMuteClick = () => {
@@ -68,17 +81,22 @@ class StatusActionBar extends React.PureComponent {
   }
 
   handleOpen = () => {
-    this.context.router.push(`/statuses/${this.props.status.get('id')}`);
+    this.context.router.history.push(`/statuses/${this.props.status.get('id')}`);
   }
 
   handleReport = () => {
     this.props.onReport(this.props.status);
-    this.context.router.push('/report');
+    this.context.router.history.push('/report');
+  }
+
+  handleConversationMuteClick = () => {
+    this.props.onMuteConversation(this.props.status);
   }
 
   render () {
-    const { status, me, intl } = this.props;
+    const { status, me, intl, withDismiss } = this.props;
     const reblogDisabled = status.get('visibility') === 'private' || status.get('visibility') === 'direct';
+    const mutingConversation = status.get('muted');
 
     let menu = [];
     let reblogIcon = 'retweet';
@@ -87,6 +105,11 @@ class StatusActionBar extends React.PureComponent {
 
     menu.push({ text: intl.formatMessage(messages.open), action: this.handleOpen });
     menu.push(null);
+
+    if (withDismiss) {
+      menu.push({ text: intl.formatMessage(mutingConversation ? messages.unmuteConversation : messages.muteConversation), action: this.handleConversationMuteClick });
+      menu.push(null);
+    }
 
     if (status.getIn(['account', 'id']) === me) {
       menu.push({ text: intl.formatMessage(messages.delete), action: this.handleDeleteClick });
@@ -105,21 +128,21 @@ class StatusActionBar extends React.PureComponent {
     }
 
     if (status.get('in_reply_to_id', null) === null) {
-      replyIcon = "reply";
+      replyIcon = 'reply';
       replyTitle = intl.formatMessage(messages.reply);
     } else {
-      replyIcon = "reply-all";
+      replyIcon = 'reply-all';
       replyTitle = intl.formatMessage(messages.replyAll);
     }
 
     return (
       <div className='status__action-bar'>
-        <div className='status__action-bar-button-wrapper'><IconButton title={replyTitle} icon={replyIcon} onClick={this.handleReplyClick} /></div>
-        <div className='status__action-bar-button-wrapper'><IconButton disabled={reblogDisabled} active={status.get('reblogged')} title={reblogDisabled ? intl.formatMessage(messages.cannot_reblog) : intl.formatMessage(messages.reblog)} icon={reblogIcon} onClick={this.handleReblogClick} /></div>
-        <div className='status__action-bar-button-wrapper'><IconButton animate={true} active={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} className='star-icon' /></div>
+        <IconButton className='status__action-bar-button' title={replyTitle} icon={replyIcon} onClick={this.handleReplyClick} />
+        <IconButton className='status__action-bar-button' disabled={reblogDisabled} active={status.get('reblogged')} title={reblogDisabled ? intl.formatMessage(messages.cannot_reblog) : intl.formatMessage(messages.reblog)} icon={reblogIcon} onClick={this.handleReblogClick} />
+        <IconButton className='status__action-bar-button star-icon' animate active={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
 
         <div className='status__action-bar-dropdown'>
-          <DropdownMenu items={menu} icon='ellipsis-h' size={18} direction="right" ariaLabel="More"/>
+          <DropdownMenu items={menu} icon='ellipsis-h' size={18} direction='right' ariaLabel='More' />
         </div>
       </div>
     );

@@ -9,6 +9,14 @@ module ApplicationHelper
     !user_signed_in? && !single_user_mode?
   end
 
+  def open_registrations?
+    Setting.open_registrations
+  end
+
+  def open_deletion?
+    Setting.open_deletion
+  end
+
   def add_rtl_body_class(other_classes)
     other_classes = "#{other_classes} rtl" if [:ar, :fa, :he].include?(I18n.locale)
     other_classes
@@ -16,7 +24,7 @@ module ApplicationHelper
 
   def favicon_path
     env_suffix = Rails.env.production? ? '' : '-dev'
-    asset_path "favicon#{env_suffix}.ico"
+    "/favicon#{env_suffix}.ico"
   end
 
   def title

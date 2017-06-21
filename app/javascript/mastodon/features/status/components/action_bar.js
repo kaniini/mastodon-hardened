@@ -12,13 +12,13 @@ const messages = defineMessages({
   reblog: { id: 'status.reblog', defaultMessage: 'Boost' },
   cannot_reblog: { id: 'status.cannot_reblog', defaultMessage: 'This post cannot be boosted' },
   favourite: { id: 'status.favourite', defaultMessage: 'Favourite' },
-  report: { id: 'status.report', defaultMessage: 'Report @{name}' }
+  report: { id: 'status.report', defaultMessage: 'Report @{name}' },
 });
 
 class ActionBar extends React.PureComponent {
 
   static contextTypes = {
-    router: PropTypes.object
+    router: PropTypes.object,
   };
 
   static propTypes = {
@@ -30,7 +30,7 @@ class ActionBar extends React.PureComponent {
     onMention: PropTypes.func.isRequired,
     onReport: PropTypes.func,
     me: PropTypes.number.isRequired,
-    intl: PropTypes.object.isRequired
+    intl: PropTypes.object.isRequired,
   };
 
   handleReplyClick = () => {
@@ -50,12 +50,12 @@ class ActionBar extends React.PureComponent {
   }
 
   handleMentionClick = () => {
-    this.props.onMention(this.props.status.get('account'), this.context.router);
+    this.props.onMention(this.props.status.get('account'), this.context.router.history);
   }
 
   handleReport = () => {
     this.props.onReport(this.props.status);
-    this.context.router.push('/report');
+    this.context.router.history.push('/report');
   }
 
   render () {
@@ -81,10 +81,10 @@ class ActionBar extends React.PureComponent {
       <div className='detailed-status__action-bar'>
         <div className='detailed-status__button'><IconButton title={intl.formatMessage(messages.reply)} icon={status.get('in_reply_to_id', null) === null ? 'reply' : 'reply-all'} onClick={this.handleReplyClick} /></div>
         <div className='detailed-status__button'><IconButton disabled={reblog_disabled} active={status.get('reblogged')} title={reblog_disabled ? intl.formatMessage(messages.cannot_reblog) : intl.formatMessage(messages.reblog)} icon={reblogIcon} onClick={this.handleReblogClick} /></div>
-        <div className='detailed-status__button'><IconButton animate={true} active={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} activeStyle={{ color: '#ca8f04' }} /></div>
+        <div className='detailed-status__button'><IconButton animate active={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} activeStyle={{ color: '#ca8f04' }} /></div>
 
         <div className='detailed-status__action-bar-dropdown'>
-          <DropdownMenu size={18} icon='ellipsis-h' items={menu} direction="left" ariaLabel="More" />
+          <DropdownMenu size={18} icon='ellipsis-h' items={menu} direction='left' ariaLabel='More' />
         </div>
       </div>
     );

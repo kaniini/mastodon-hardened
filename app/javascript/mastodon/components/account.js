@@ -16,15 +16,17 @@ const messages = defineMessages({
   unmute: { id: 'account.unmute', defaultMessage: 'Unmute @{name}' },
 });
 
-class Account extends ImmutablePureComponent {
+@injectIntl
+export default class Account extends ImmutablePureComponent {
 
   static propTypes = {
     account: ImmutablePropTypes.map.isRequired,
-    me: PropTypes.number.isRequired,
+    me: PropTypes.string.isRequired,
     onFollow: PropTypes.func.isRequired,
     onBlock: PropTypes.func.isRequired,
     onMute: PropTypes.func.isRequired,
     intl: PropTypes.object.isRequired,
+    hidden: PropTypes.bool,
   };
 
   handleFollow = () => {
@@ -40,10 +42,19 @@ class Account extends ImmutablePureComponent {
   }
 
   render () {
-    const { account, me, intl } = this.props;
+    const { account, me, intl, hidden } = this.props;
 
     if (!account) {
       return <div />;
+    }
+
+    if (hidden) {
+      return (
+        <div>
+          {account.get('display_name')}
+          {account.get('username')}
+        </div>
+      );
     }
 
     let buttons;
@@ -69,7 +80,7 @@ class Account extends ImmutablePureComponent {
       <div className='account'>
         <div className='account__wrapper'>
           <Permalink key={account.get('id')} className='account__display-name' href={account.get('url')} to={`/accounts/${account.get('id')}`}>
-            <div className='account__avatar-wrapper'><Avatar src={account.get('avatar')} staticSrc={account.get('avatar_static')} size={36} /></div>
+            <div className='account__avatar-wrapper'><Avatar account={account} size={36} /></div>
             <DisplayName account={account} />
           </Permalink>
 
@@ -82,5 +93,3 @@ class Account extends ImmutablePureComponent {
   }
 
 }
-
-export default injectIntl(Account);

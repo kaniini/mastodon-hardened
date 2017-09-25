@@ -11,10 +11,11 @@ import ColumnBackButton from '../../components/column_back_button';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 
 const mapStateToProps = (state, props) => ({
-  accountIds: state.getIn(['user_lists', 'reblogged_by', Number(props.params.statusId)]),
+  accountIds: state.getIn(['user_lists', 'reblogged_by', props.params.statusId]),
 });
 
-class Reblogs extends ImmutablePureComponent {
+@connect(mapStateToProps)
+export default class Reblogs extends ImmutablePureComponent {
 
   static propTypes = {
     params: PropTypes.object.isRequired,
@@ -23,12 +24,12 @@ class Reblogs extends ImmutablePureComponent {
   };
 
   componentWillMount () {
-    this.props.dispatch(fetchReblogs(Number(this.props.params.statusId)));
+    this.props.dispatch(fetchReblogs(this.props.params.statusId));
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.params.statusId !== this.props.params.statusId && nextProps.params.statusId) {
-      this.props.dispatch(fetchReblogs(Number(nextProps.params.statusId)));
+      this.props.dispatch(fetchReblogs(nextProps.params.statusId));
     }
   }
 
@@ -57,5 +58,3 @@ class Reblogs extends ImmutablePureComponent {
   }
 
 }
-
-export default connect(mapStateToProps)(Reblogs);

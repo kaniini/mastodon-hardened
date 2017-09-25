@@ -1,9 +1,12 @@
 import React from 'react';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import PropTypes from 'prop-types';
+import { is } from 'immutable';
 import IconButton from './icon_button';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import { isIOS } from '../is_mobile';
+import classNames from 'classnames';
+import sizeMe from 'react-sizeme';
 
 const messages = defineMessages({
   toggle_visible: { id: 'media_gallery.toggle_visible', defaultMessage: 'Toggle visibility' },
@@ -11,18 +14,48 @@ const messages = defineMessages({
 
 class Item extends React.PureComponent {
 
+  static contextTypes = {
+    router: PropTypes.object,
+  };
+
   static propTypes = {
     attachment: ImmutablePropTypes.map.isRequired,
+    standalone: PropTypes.bool,
     index: PropTypes.number.isRequired,
     size: PropTypes.number.isRequired,
     onClick: PropTypes.func.isRequired,
-    autoPlayGif: PropTypes.bool.isRequired,
+    autoPlayGif: PropTypes.bool,
   };
+
+  static defaultProps = {
+    autoPlayGif: false,
+    standalone: false,
+    index: 0,
+    size: 1,
+  };
+
+  handleMouseEnter = (e) => {
+    if (this.hoverToPlay()) {
+      e.target.play();
+    }
+  }
+
+  handleMouseLeave = (e) => {
+    if (this.hoverToPlay()) {
+      e.target.pause();
+      e.target.currentTime = 0;
+    }
+  }
+
+  hoverToPlay () {
+    const { attachment, autoPlayGif } = this.props;
+    return !autoPlayGif && attachment.get('type') === 'gifv';
+  }
 
   handleClick = (e) => {
     const { index, onClick } = this.props;
 
-    if (e.button === 0) {
+    if (this.context.router && e.button === 0) {
       e.preventDefault();
       onClick(index);
     }
@@ -31,7 +64,7 @@ class Item extends React.PureComponent {
   }
 
   render () {
-    const { attachment, index, size } = this.props;
+    const { attachment, index, size, standalone } = this.props;
 
     let width  = 50;
     let height = 100;
@@ -85,25 +118,39 @@ class Item extends React.PureComponent {
     let thumbnail = '';
 
     if (attachment.get('type') === 'image') {
+      const previewUrl = attachment.get('preview_url');
+      const previewWidth = attachment.getIn(['meta', 'small', 'width']);
+
+      const originalUrl = attachment.get('url');
+      const originalWidth = attachment.getIn(['meta', 'original', 'width']);
+
+      const hasSize = typeof originalWidth === 'number' && typeof previewWidth === 'number';
+
+      const srcSet = hasSize ? `${originalUrl} ${originalWidth}w, ${previewUrl} ${previewWidth}w` : null;
+      const sizes = hasSize ? `(min-width: 1025px) ${320 * (width / 100)}px, ${width}vw` : null;
+
       thumbnail = (
-        <a // eslint-disable-line jsx-a11y/anchor-has-content
+        <a
           className='media-gallery__item-thumbnail'
-          href={attachment.get('remote_url') || attachment.get('url')}
+          href={attachment.get('remote_url') || originalUrl}
           onClick={this.handleClick}
           target='_blank'
-          style={{ backgroundImage: `url(${attachment.get('preview_url')})` }}
-        />
+        >
+          <img src={previewUrl} srcSet={srcSet} sizes={sizes} alt='' />
+        </a>
       );
     } else if (attachment.get('type') === 'gifv') {
       const autoPlay = !isIOS() && this.props.autoPlayGif;
 
       thumbnail = (
-        <div className={`media-gallery__gifv ${autoPlay ? 'autoplay' : ''}`}>
+        <div className={classNames('media-gallery__gifv', { autoplay: autoPlay })}>
           <video
             className='media-gallery__item-gifv-thumbnail'
             role='application'
             src={attachment.get('url')}
             onClick={this.handleClick}
+            onMouseEnter={this.handleMouseEnter}
+            onMouseLeave={this.handleMouseLeave}
             autoPlay={autoPlay}
             loop
             muted
@@ -115,7 +162,7 @@ class Item extends React.PureComponent {
     }
 
     return (
-      <div className='media-gallery__item' key={attachment.get('id')} style={{ left: left, top: top, right: right, bottom: bottom, width: `${width}%`, height: `${height}%` }}>
+      <div className={classNames('media-gallery__item', { standalone })} key={attachment.get('id')} style={{ left: left, top: top, right: right, bottom: bottom, width: `${width}%`, height: `${height}%` }}>
         {thumbnail}
       </div>
     );
@@ -123,22 +170,37 @@ class Item extends React.PureComponent {
 
 }
 
-class MediaGallery extends React.PureComponent {
+@injectIntl
+@sizeMe({})
+export default class MediaGallery extends React.PureComponent {
 
   static propTypes = {
     sensitive: PropTypes.bool,
+    standalone: PropTypes.bool,
     media: ImmutablePropTypes.list.isRequired,
+    size: PropTypes.object,
     height: PropTypes.number.isRequired,
     onOpenMedia: PropTypes.func.isRequired,
     intl: PropTypes.object.isRequired,
-    autoPlayGif: PropTypes.bool.isRequired,
+    autoPlayGif: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    autoPlayGif: false,
+    standalone: false,
   };
 
   state = {
     visible: !this.props.sensitive,
   };
 
-  handleOpen = (e) => {
+  componentWillReceiveProps (nextProps) {
+    if (!is(nextProps.media, this.props.media)) {
+      this.setState({ visible: !nextProps.sensitive });
+    }
+  }
+
+  handleOpen = () => {
     this.setState({ visible: !this.state.visible });
   }
 
@@ -147,9 +209,18 @@ class MediaGallery extends React.PureComponent {
   }
 
   render () {
-    const { media, intl, sensitive } = this.props;
+    const { media, intl, sensitive, height, standalone, size } = this.props;
 
     let children;
+
+    const standaloneEligible = standalone && size.width && media.size === 1 && media.getIn([0, 'meta', 'small', 'aspect']);
+    const style = {};
+
+    if (standaloneEligible) {
+      style.height = size.width / media.getIn([0, 'meta', 'small', 'aspect']);
+    } else {
+      style.height = height;
+    }
 
     if (!this.state.visible) {
       let warning;
@@ -161,19 +232,24 @@ class MediaGallery extends React.PureComponent {
       }
 
       children = (
-        <div role='button' tabIndex='0' className='media-spoiler' onClick={this.handleOpen}>
+        <button className='media-spoiler' onClick={this.handleOpen} style={style}>
           <span className='media-spoiler__warning'>{warning}</span>
           <span className='media-spoiler__trigger'><FormattedMessage id='status.sensitive_toggle' defaultMessage='Click to view' /></span>
-        </div>
+        </button>
       );
     } else {
       const size = media.take(4).size;
-      children = media.take(4).map((attachment, i) => <Item key={attachment.get('id')} onClick={this.handleClick} attachment={attachment} autoPlayGif={this.props.autoPlayGif} index={i} size={size} />);
+
+      if (standaloneEligible) {
+        children = <Item standalone onClick={this.handleClick} attachment={media.get(0)} autoPlayGif={this.props.autoPlayGif} />;
+      } else {
+        children = media.take(4).map((attachment, i) => <Item key={attachment.get('id')} onClick={this.handleClick} attachment={attachment} autoPlayGif={this.props.autoPlayGif} index={i} size={size} />);
+      }
     }
 
     return (
-      <div className='media-gallery' style={{ height: `${this.props.height}px` }}>
-        <div className={`spoiler-button ${this.state.visible ? 'spoiler-button--visible' : ''}`}>
+      <div className='media-gallery' style={style}>
+        <div className={classNames('spoiler-button', { 'spoiler-button--visible': this.state.visible })}>
           <IconButton title={intl.formatMessage(messages.toggle_visible)} icon={this.state.visible ? 'eye' : 'eye-slash'} overlay onClick={this.handleOpen} />
         </div>
 
@@ -183,5 +259,3 @@ class MediaGallery extends React.PureComponent {
   }
 
 }
-
-export default injectIntl(MediaGallery);

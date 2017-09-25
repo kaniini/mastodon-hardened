@@ -4,7 +4,7 @@ RSpec.describe Api::V1::MediaController, type: :controller do
   render_views
 
   let(:user)  { Fabricate(:user, account: Fabricate(:account, username: 'alice')) }
-  let(:token) { double acceptable?: true, resource_owner_id: user.id }
+  let(:token) { Fabricate(:accessible_access_token, resource_owner_id: user.id, scopes: 'write') }
 
   before do
     allow(controller).to receive(:doorkeeper_token) { token }
@@ -53,7 +53,7 @@ RSpec.describe Api::V1::MediaController, type: :controller do
       end
 
       it 'returns media ID in JSON' do
-        expect(body_as_json[:id]).to eq MediaAttachment.first.id
+        expect(body_as_json[:id]).to eq MediaAttachment.first.id.to_s
       end
     end
 
@@ -75,7 +75,7 @@ RSpec.describe Api::V1::MediaController, type: :controller do
       end
 
       it 'returns media ID in JSON' do
-        expect(body_as_json[:id]).to eq MediaAttachment.first.id
+        expect(body_as_json[:id]).to eq MediaAttachment.first.id.to_s
       end
     end
 
@@ -97,7 +97,7 @@ RSpec.describe Api::V1::MediaController, type: :controller do
       end
 
       xit 'returns media ID in JSON' do
-        expect(body_as_json[:id]).to eq MediaAttachment.first.id
+        expect(body_as_json[:id]).to eq MediaAttachment.first.id.to_s
       end
     end
   end

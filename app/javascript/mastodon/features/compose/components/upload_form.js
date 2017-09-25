@@ -11,7 +11,8 @@ const messages = defineMessages({
   undo: { id: 'upload_form.undo', defaultMessage: 'Undo' },
 });
 
-class UploadForm extends React.PureComponent {
+@injectIntl
+export default class UploadForm extends React.PureComponent {
 
   static propTypes = {
     media: ImmutablePropTypes.list.isRequired,
@@ -20,7 +21,7 @@ class UploadForm extends React.PureComponent {
   };
 
   onRemoveFile = (e) => {
-    const id = Number(e.currentTarget.parentElement.getAttribute('data-id'));
+    const id = e.currentTarget.parentElement.getAttribute('data-id');
     this.props.onRemoveFile(id);
   }
 
@@ -48,5 +49,3 @@ class UploadForm extends React.PureComponent {
   }
 
 }
-
-export default injectIntl(UploadForm);

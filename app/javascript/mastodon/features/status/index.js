@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import { fetchStatus } from '../../actions/statuses';
-import Immutable from 'immutable';
-import EmbeddedStatus from '../../components/status';
 import MissingIndicator from '../../components/missing_indicator';
 import DetailedStatus from './components/detailed_status';
 import ActionBar from './components/action_bar';
@@ -14,6 +12,8 @@ import {
   unfavourite,
   reblog,
   unreblog,
+  pin,
+  unpin,
 } from '../../actions/interactions';
 import {
   replyCompose,
@@ -21,17 +21,12 @@ import {
 } from '../../actions/compose';
 import { deleteStatus } from '../../actions/statuses';
 import { initReport } from '../../actions/reports';
-import {
-  makeGetStatus,
-  getStatusAncestors,
-  getStatusDescendants,
-} from '../../selectors';
+import { makeGetStatus } from '../../selectors';
 import { ScrollContainer } from 'react-router-scroll';
 import ColumnBackButton from '../../components/column_back_button';
 import StatusContainer from '../../containers/status_container';
 import { openModal } from '../../actions/modal';
-import { isMobile } from '../../is_mobile';
-import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 
 const messages = defineMessages({
@@ -43,9 +38,9 @@ const makeMapStateToProps = () => {
   const getStatus = makeGetStatus();
 
   const mapStateToProps = (state, props) => ({
-    status: getStatus(state, Number(props.params.statusId)),
-    ancestorsIds: state.getIn(['contexts', 'ancestors', Number(props.params.statusId)]),
-    descendantsIds: state.getIn(['contexts', 'descendants', Number(props.params.statusId)]),
+    status: getStatus(state, props.params.statusId),
+    ancestorsIds: state.getIn(['contexts', 'ancestors', props.params.statusId]),
+    descendantsIds: state.getIn(['contexts', 'descendants', props.params.statusId]),
     me: state.getIn(['meta', 'me']),
     boostModal: state.getIn(['meta', 'boost_modal']),
     deleteModal: state.getIn(['meta', 'delete_modal']),
@@ -55,7 +50,9 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
 
-class Status extends ImmutablePureComponent {
+@injectIntl
+@connect(makeMapStateToProps)
+export default class Status extends ImmutablePureComponent {
 
   static contextTypes = {
     router: PropTypes.object,
@@ -67,7 +64,7 @@ class Status extends ImmutablePureComponent {
     status: ImmutablePropTypes.map,
     ancestorsIds: ImmutablePropTypes.list,
     descendantsIds: ImmutablePropTypes.list,
-    me: PropTypes.number,
+    me: PropTypes.string,
     boostModal: PropTypes.bool,
     deleteModal: PropTypes.bool,
     autoPlayGif: PropTypes.bool,
@@ -75,12 +72,12 @@ class Status extends ImmutablePureComponent {
   };
 
   componentWillMount () {
-    this.props.dispatch(fetchStatus(Number(this.props.params.statusId)));
+    this.props.dispatch(fetchStatus(this.props.params.statusId));
   }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.params.statusId !== this.props.params.statusId && nextProps.params.statusId) {
-      this.props.dispatch(fetchStatus(Number(nextProps.params.statusId)));
+      this.props.dispatch(fetchStatus(nextProps.params.statusId));
     }
   }
 
@@ -89,6 +86,14 @@ class Status extends ImmutablePureComponent {
       this.props.dispatch(unfavourite(status));
     } else {
       this.props.dispatch(favourite(status));
+    }
+  }
+
+  handlePin = (status) => {
+    if (status.get('pinned')) {
+      this.props.dispatch(unpin(status));
+    } else {
+      this.props.dispatch(pin(status));
     }
   }
 
@@ -142,6 +147,10 @@ class Status extends ImmutablePureComponent {
     this.props.dispatch(initReport(status.get('account'), status));
   }
 
+  handleEmbed = (status) => {
+    this.props.dispatch(openModal('EMBED', { url: status.get('url') }));
+  }
+
   renderChildren (list) {
     return list.map(id => <StatusContainer key={id} id={id} />);
   }
@@ -158,8 +167,6 @@ class Status extends ImmutablePureComponent {
         </Column>
       );
     }
-
-    const account = status.get('account');
 
     if (ancestorsIds && ancestorsIds.size > 0) {
       ancestors = <div>{this.renderChildren(ancestorsIds)}</div>;
@@ -194,6 +201,8 @@ class Status extends ImmutablePureComponent {
               onDelete={this.handleDeleteClick}
               onMention={this.handleMentionClick}
               onReport={this.handleReport}
+              onPin={this.handlePin}
+              onEmbed={this.handleEmbed}
             />
 
             {descendants}
@@ -204,5 +213,3 @@ class Status extends ImmutablePureComponent {
   }
 
 }
-
-export default injectIntl(connect(makeMapStateToProps)(Status));

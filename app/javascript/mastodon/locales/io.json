@@ -47,7 +47,6 @@
   "compose_form.lock_disclaimer": "Your account is not {locked}. Anyone can follow you to view your follower-only posts.",
   "compose_form.lock_disclaimer.lock": "locked",
   "compose_form.placeholder": "Quo esas en tua spirito?",
-  "compose_form.privacy_disclaimer": "Tua privata mesajo livresos a mencionata uzeri en {domains}. Ka tu fidas {domainsCount, plural, one {ta servero} other {ta serveri}}? Privateso di mesaji funcionas nur en instaluri di Mastodon. Se {domains} {domainsCount, plural, one {ne esas instaluro di Mastodon} other {ne esas instaluri di Mastodon}}, esos nula indiko, ke tua mesajo esas privata, ed ol povos repetesar od altre divenar videbla da nedezirinda recevanti.",
   "compose_form.publish": "Siflar",
   "compose_form.publish_loud": "{publish}!",
   "compose_form.sensitive": "Markizar kontenajo kom trubliva",
@@ -166,6 +165,11 @@
   "report.submit": "Sendar",
   "report.target": "Denuncante",
   "search.placeholder": "Serchez",
+  "search_popout.search_format": "Advanced search format",
+  "search_popout.tips.hashtag": "hashtag",
+  "search_popout.tips.status": "status",
+  "search_popout.tips.text": "Simple text returns matching display names, usernames and hashtags",
+  "search_popout.tips.user": "user",
   "search_results.total": "{count, number} {count, plural, one {rezulto} other {rezulti}}",
   "standalone.public_title": "A look inside...",
   "status.cannot_reblog": "This post cannot be boosted",
@@ -197,6 +201,7 @@
   "tabs_bar.notifications": "Savigi",
   "upload_area.title": "Tranar faligar por kargar",
   "upload_button.label": "Adjuntar kontenajo",
+  "upload_form.description": "Describe for the visually impaired",
   "upload_form.undo": "Desfacar",
   "upload_progress.label": "Kargante...",
   "video.close": "Close video",
@@ -207,9 +212,5 @@
   "video.mute": "Mute sound",
   "video.pause": "Pause",
   "video.play": "Play",
-  "video.unmute": "Unmute sound",
-  "video_player.expand": "Extensar video",
-  "video_player.toggle_sound": "Acendar sono",
-  "video_player.toggle_visible": "Chanjar videbleso",
-  "video_player.video_error": "Video ne povus pleesar"
+  "video.unmute": "Unmute sound"
 }

@@ -55,3 +55,18 @@ knowledge.
 
 Note: Block notification suppression does mean that the abusers may be able to view
 newly published statuses on multi-user servers.
+
+
+## Design goals
+
+* Unintended redistributions of statuses to the general public should be considered
+  a safety-critical issue.
+
+* Private statuses (DMs, follower-only posts) must never be leakable to the general
+  public.
+
+* DMs must be redesigned in the UI to ensure no accidental leakages.
+
+* Third-party applications should be blockable by the admins, so that third party
+  apps which cause users to harm themselves (e.g. private status leakage to public)
+  could be blocked.

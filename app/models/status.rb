@@ -211,8 +211,11 @@ class Status < ApplicationRecord
 
       if account.nil?
         where(visibility: visibility)
-      elsif target_account.blocking?(account) # get rid of blocked peeps
-        none
+      elsif target_account.blocking?(account)
+        # blocked people can only see public statuses until the point where they were blocked,
+        # then nothing.
+        deadline = Block.select('updated_at').where(target_account_id: account.id, account_id: target_account.id).first.updated_at
+        where(visibility: visibility).where(['updated_at <= ?', deadline])
       elsif account.id == target_account.id # author can see own stuff
         all
       else

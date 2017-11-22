@@ -10,6 +10,9 @@ class StatusPolicy < ApplicationPolicy
       owned? || record.mentions.where(account: current_account).exists?
     elsif private?
       owned? || current_account&.following?(author) || record.mentions.where(account: current_account).exists?
+    elsif !current_account.nil? && author.blocking?(current_account)
+      deadline = Block.select('updated_at').where(account_id: author.id, target_account_id: current_account.id).first.updated_at
+      record.updated_at <= deadline
     else
       current_account.nil? || !author.blocking?(current_account)
     end

@@ -3,7 +3,7 @@
 class FetchLinkCardService < BaseService
   URL_PATTERN = %r{
     (                                                                                                 #   $1 URL
-      (https?:\/\/)?                                                                                  #   $2 Protocol (optional)
+      (https?:\/\/)                                                                                   #   $2 Protocol (required)
       (#{Twitter::Regex[:valid_domain]})                                                              #   $3 Domain(s)
       (?::(#{Twitter::Regex[:valid_port_number]}))?                                                   #   $4 Port number (optional)
       (/#{Twitter::Regex[:valid_url_path]}*)?                                                         #   $5 URL Path and anchor
@@ -73,6 +73,9 @@ class FetchLinkCardService < BaseService
     response = OEmbed::Providers.get(@url)
 
     return false unless response.respond_to?(:type)
+
+    # The photo will change the URL. So, to avoid duplication of URLs, PreviewCard needs to be checked again.
+    @card = PreviewCard.find_by(url: response.url) || @card if response.type == 'photo'
 
     @card.type          = response.type
     @card.title         = response.respond_to?(:title)         ? response.title         : ''

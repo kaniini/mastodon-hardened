@@ -122,7 +122,7 @@ export function unfollowAccount(id) {
     dispatch(unfollowAccountRequest(id));
 
     api(getState).post(`/api/v1/accounts/${id}/unfollow`).then(response => {
-      dispatch(unfollowAccountSuccess(response.data));
+      dispatch(unfollowAccountSuccess(response.data, getState().get('statuses')));
     }).catch(error => {
       dispatch(unfollowAccountFail(error));
     });
@@ -157,10 +157,11 @@ export function unfollowAccountRequest(id) {
   };
 };
 
-export function unfollowAccountSuccess(relationship) {
+export function unfollowAccountSuccess(relationship, statuses) {
   return {
     type: ACCOUNT_UNFOLLOW_SUCCESS,
     relationship,
+    statuses,
   };
 };
 
@@ -240,11 +241,11 @@ export function unblockAccountFail(error) {
 };
 
 
-export function muteAccount(id) {
+export function muteAccount(id, notifications) {
   return (dispatch, getState) => {
     dispatch(muteAccountRequest(id));
 
-    api(getState).post(`/api/v1/accounts/${id}/mute`).then(response => {
+    api(getState).post(`/api/v1/accounts/${id}/mute`, { notifications }).then(response => {
       // Pass in entire statuses map so we can use it to filter stuff in different parts of the reducers
       dispatch(muteAccountSuccess(response.data, getState().get('statuses')));
     }).catch(error => {

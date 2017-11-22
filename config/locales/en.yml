@@ -1,8 +1,8 @@
 ---
 en:
   about:
-    about_mastodon_html: Mastodon is a social network based on open web protocols and free, open-source software. It is decentralized like e-mail.
     about_hashtag_html: These are public toots tagged with <strong>#%{hashtag}</strong>. You can interact with them if you have an account anywhere in the fediverse.
+    about_mastodon_html: Mastodon is a social network based on open web protocols and free, open-source software. It is decentralized like e-mail.
     about_this: About
     closed_registrations: Registrations are currently closed on this instance. However! You can find a different instance to make an account on and get access to the very same network from there.
     contact: Contact
@@ -39,26 +39,41 @@ en:
     followers: Followers
     following: Following
     media: Media
+    moved_html: "%{name} has moved to %{new_profile_link}:"
     nothing_here: There is nothing here!
     people_followed_by: People whom %{name} follows
     people_who_follow: People who follow %{name}
     posts: Toots
-    posts_with_replies: Toots with replies
+    posts_with_replies: Toots and replies
     remote_follow: Remote follow
     reserved_username: The username is reserved
     roles:
       admin: Admin
+      moderator: Mod
     unfollow: Unfollow
   admin:
+    account_moderation_notes:
+      account: Moderator
+      create: Create
+      created_at: Date
+      created_msg: Moderation note successfully created!
+      delete: Delete
+      destroyed_msg: Moderation note successfully destroyed!
     accounts:
       are_you_sure: Are you sure?
+      by_domain: Domain
       confirm: Confirm
       confirmed: Confirmed
+      demote: Demote
+      disable: Disable
       disable_two_factor_authentication: Disable 2FA
+      disabled: Disabled
       display_name: Display name
       domain: Domain
       edit: Edit
       email: E-mail
+      enable: Enable
+      enabled: Enabled
       feed_url: Feed URL
       followers: Followers
       followers_url: Followers URL
@@ -70,7 +85,9 @@ en:
         local: Local
         remote: Remote
         title: Location
+      login_status: Login status
       media_attachments: Media attachments
+      memorialize: Turn into memoriam
       moderation:
         all: All
         silenced: Silenced
@@ -87,6 +104,7 @@ en:
       outbox_url: Outbox URL
       perform_full_suspension: Perform full suspension
       profile_url: Profile URL
+      promote: Promote
       protocol: Protocol
       public: Public
       push_subscription_expires: PuSH subscription expires
@@ -94,6 +112,11 @@ en:
       reset: Reset
       reset_password: Reset password
       resubscribe: Resubscribe
+      role: Permissions
+      roles:
+        admin: Administrator
+        moderator: Moderator
+        user: User
       salmon_url: Salmon URL
       search: Search
       shared_inbox_url: Shared Inbox URL
@@ -110,15 +133,6 @@ en:
       unsubscribe: Unsubscribe
       username: Username
       web: Web
-
-    account_moderation_notes:
-      account: Moderator
-      created_at: Date
-      create: Create
-      created_msg: Moderation note successfully created!
-      delete: Delete
-      destroyed_msg: Moderation note successfully destroyed!
-
     custom_emojis:
       copied_msg: Successfully created local copy of the emoji
       copy: Copy
@@ -132,11 +146,16 @@ en:
       enable: Enable
       enabled_msg: Successfully enabled that emoji
       image_hint: PNG up to 50KB
+      listed: Listed
       new:
         title: Add new custom emoji
+      overwrite: Overwrite
       shortcode: Shortcode
       shortcode_hint: At least 2 characters, only alphanumeric characters and underscores
       title: Custom emojis
+      unlisted: Unlisted
+      update_failed_msg: Could not update that emoji
+      updated_msg: Emoji successfully updated!
       upload: Upload
     domain_blocks:
       add_new: Add new
@@ -227,6 +246,9 @@ en:
         open:
           desc_html: Allow anyone to create an account
           title: Open registration
+      show_staff_badge:
+        desc_html: Show a staff badge on a user page
+        title: Show staff badge
       site_description:
         desc_html: Introductory paragraph on the frontpage and in meta tags. You can use HTML tags, in particular <code>&lt;a&gt;</code> and <code>&lt;em&gt;</code>.
         title: Instance description
@@ -375,6 +397,7 @@ en:
       following: Following list
       muting: Muting list
     upload: Upload
+  in_memoriam_html: In Memoriam.
   landing_strip_html: "<strong>%{name}</strong> is a user on %{link_to_root_path}. You can follow them or interact with them if you have an account anywhere in the fediverse."
   landing_strip_signup_html: If you don't, you can <a href="%{sign_up_path}">sign up here</a>.
   media_attachments:

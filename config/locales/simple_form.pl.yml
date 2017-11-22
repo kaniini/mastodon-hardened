@@ -48,6 +48,7 @@ pl:
         setting_default_sensitive: Zawsze oznaczaj zawartość multimedialną jako wrażliwą
         setting_delete_modal: Pytaj o potwierdzenie przed usunięciem wpisu
         setting_noindex: Nie indeksuj mojego profilu w wyszukiwarkach internetowych
+        setting_reduce_motion: Ogranicz ruch w animacjach
         setting_system_font_ui: Używaj domyślnej czcionki systemu
         setting_theme: Motyw strony
         setting_unfollow_modal: Pytaj o potwierdzenie przed cofnięciem śledzenia
@@ -57,6 +58,7 @@ pl:
       interactions:
         must_be_follower: Nie wyświetlaj powiadomień od osób, które Cię nie śledzą
         must_be_following: Nie wyświetlaj powiadomień od osób, których nie śledzisz
+        must_be_following_dm: Nie wyświetlaj wiadomości bezpośrednich od osób, których nie śledzisz
       notification_emails:
         digest: Wysyłaj podsumowania e-mailem
         favourite: Powiadamiaj mnie e-mailem, gdy ktoś polubi mój wpis

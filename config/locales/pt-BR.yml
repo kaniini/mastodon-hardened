@@ -1,8 +1,8 @@
 ---
 pt-BR:
   about:
-    about_mastodon_html: Mastodon é uma rede social baseada em protocolos abertos e software gratuito e de código aberto. É descentralizada como e-mail.
     about_hashtag_html: Estes são toots públicos com a hashtag <strong>#%{hashtag}</strong>. Voce pode interagir com eles se tiver uma conta em qualquer lugar no fediverso.
+    about_mastodon_html: Mastodon é uma rede social baseada em protocolos abertos e software gratuito e de código aberto. É descentralizada como e-mail.
     about_this: Sobre
     closed_registrations: Cadastros estão atualmente fechados nesta instância. No entanto! Você pode procurar uma instância diferente na qual possa criar uma conta e acessar a mesma rede por lá.
     contact: Contato
@@ -11,7 +11,7 @@ pt-BR:
     description_headline: O que é %{domain}?
     domain_count_after: outras instâncias
     domain_count_before: Conectado a
-    extended_description_html:
+    extended_description_html: |
       <h3>Um bom lugar para regras</h3>
       <p>A descrição da instância ainda não foi feita.</p>
     features:
@@ -43,22 +43,35 @@ pt-BR:
     people_followed_by: Pessoas que %{name} segue
     people_who_follow: Pessoas que seguem %{name}
     posts: Toots
-    posts_with_replies: Toots com respostas
+    posts_with_replies: Toots e respostas
     remote_follow: Siga remotamente
     reserved_username: Este usuário está reservado
     roles:
       admin: Administrador
     unfollow: Deixar de seguir
   admin:
+    account_moderation_notes:
+      account: Moderador
+      create: Criar
+      created_at: Data
+      created_msg: Nota de moderação criada com sucesso!
+      delete: Excluir
+      destroyed_msg: Nota de moderação excluída com sucesso!
     accounts:
       are_you_sure: Você tem certeza?
+      by_domain: Domínio
       confirm: Confirmar
       confirmed: Confirmado
+      demote: Rebaixar
+      disable: Desativar
       disable_two_factor_authentication: Desativar 2FA
+      disabled: Desativado
       display_name: Nome de exibição
       domain: Domínio
       edit: Editar
       email: E-mail
+      enable: Ativar
+      enabled: Ativado
       feed_url: URL do feed
       followers: Seguidores
       followers_url: URL de seguidores
@@ -70,7 +83,9 @@ pt-BR:
         local: Local
         remote: Remoto
         title: Localização
+      login_status: Status de login
       media_attachments: Mídia(s) anexada(s)
+      memorialize: Tornar um memorial
       moderation:
         all: Todos
         silenced: Silenciados
@@ -87,6 +102,7 @@ pt-BR:
       outbox_url: URL da Outbox
       perform_full_suspension: Efetue suspensão total
       profile_url: URL do perfil
+      promote: Promover
       protocol: Protocolo
       public: Público
       push_subscription_expires: Inscrição PuSH expira
@@ -94,6 +110,11 @@ pt-BR:
       reset: Anular
       reset_password: Modificar senha
       resubscribe: Reinscrever-se
+      role: Permissões
+      roles:
+        admin: Administrador
+        moderator: Moderador
+        user: Usuário
       salmon_url: Salmon URL
       search: Pesquisar
       shared_inbox_url: URL da Inbox Compartilhada
@@ -110,15 +131,6 @@ pt-BR:
       unsubscribe: Desinscrever-se
       username: Nome de usuário
       web: Web
-
-    account_moderation_notes:
-      account: Moderador
-      created_at: Data
-      create: Criar
-      created_msg: Nota de moderação criada com sucesso!
-      delete: Excluir
-      destroyed_msg: Nota de moderação excluída com sucesso!
-
     custom_emojis:
       copied_msg: Cópia local do emoji criada com sucesso!
       copy: Copiar
@@ -132,11 +144,16 @@ pt-BR:
       enable: Habilitar
       enabled_msg: Emoji habilitado com sucesso!
       image_hint: PNG de até 50KB
+      listed: Listado
       new:
         title: Adicionar novo emoji customizado
+      overwrite: Sobrescrever
       shortcode: Atalho
       shortcode_hint: Pelo menos 2 caracteres, apenas caracteres alfanuméricos e underscores
       title: Emojis customizados
+      unlisted: Não listado
+      update_failed_msg: Não foi possível atualizar esse emoji
+      updated_msg: Emoji atualizado com sucesso!
       upload: Enviar
     domain_blocks:
       add_new: Adicionar novo
@@ -375,6 +392,7 @@ pt-BR:
       following: Pessoas que você segue
       muting: Lista de silêncio
     upload: Enviar
+  in_memoriam_html: Em memória de
   landing_strip_html: "<strong>%{name}</strong> é um usuário no %{link_to_root_path}. Você pode segui-lo ou interagir com ele se você tiver uma conta em qualquer lugar no fediverso."
   landing_strip_signup_html: Se não, você pode <a href="%{sign_up_path}">se cadastrar aqui</a>.
   media_attachments:
@@ -520,7 +538,7 @@ pt-BR:
     reblogged: compartilhado
     sensitive_content: Conteúdo sensível
   terms:
-    body_html:
+    body_html: |
       <h2>Política de privacidade</h2>
 
       <h3 id="collect">Que informações nós coletamos?</h3>
@@ -589,8 +607,6 @@ pt-BR:
 
       <p>Originalmente adaptado da <a href="https://github.com/discourse/discourse">política de privacidade do Discourse</a>.</p>
     title: "%{instance} Termos de Serviço e Política de Privacidade"
-  themes:
-    default: Mastodon
   time:
     formats:
       default: "%b %d, %Y, %H:%M"

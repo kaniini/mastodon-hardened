@@ -2,7 +2,8 @@
 
 class AccountRelationshipsPresenter
   attr_reader :following, :followed_by, :blocking,
-              :muting, :requested, :domain_blocking
+              :muting, :requested, :domain_blocking,
+              :blocked
 
   def initialize(account_ids, current_account_id, options = {})
     @following       = Account.following_map(account_ids, current_account_id).merge(options[:following_map] || {})
@@ -11,5 +12,6 @@ class AccountRelationshipsPresenter
     @muting          = Account.muting_map(account_ids, current_account_id).merge(options[:muting_map] || {})
     @requested       = Account.requested_map(account_ids, current_account_id).merge(options[:requested_map] || {})
     @domain_blocking = Account.domain_blocking_map(account_ids, current_account_id).merge(options[:domain_blocking_map] || {})
+    @blocked         = Account.blocked_map(account_ids, current_account_id).merge(options[:blocked_map] || {})
   end
 end

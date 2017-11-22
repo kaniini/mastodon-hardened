@@ -16,6 +16,10 @@ module AccountInteractions
       follow_mapping(Block.where(target_account_id: target_account_ids, account_id: account_id), :target_account_id)
     end
 
+    def blocked_map(target_account_ids, account_id)
+      follow_mapping(Block.where(account_id: target_account_ids, target_account_id: account_id), :account_id)
+    end
+
     def muting_map(target_account_ids, account_id)
       Mute.where(target_account_id: target_account_ids, account_id: account_id).each_with_object({}) do |mute, mapping|
         mapping[mute.target_account_id] = {

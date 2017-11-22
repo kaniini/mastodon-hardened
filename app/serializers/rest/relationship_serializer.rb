@@ -2,7 +2,8 @@
 
 class REST::RelationshipSerializer < ActiveModel::Serializer
   attributes :id, :following, :followed_by, :blocking,
-             :muting, :requested, :domain_blocking
+             :muting, :requested, :domain_blocking,
+             :blocked
 
   def id
     object.id.to_s
@@ -18,6 +19,10 @@ class REST::RelationshipSerializer < ActiveModel::Serializer
 
   def blocking
     instance_options[:relationships].blocking[object.id] || false
+  end
+
+  def blocked
+    instance_options[:relationships].blocked[object.id] || false
   end
 
   def muting

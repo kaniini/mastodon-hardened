@@ -13,6 +13,7 @@ const messages = defineMessages({
   unfollow: { id: 'account.unfollow', defaultMessage: 'Unfollow' },
   follow: { id: 'account.follow', defaultMessage: 'Follow' },
   requested: { id: 'account.requested', defaultMessage: 'Awaiting approval. Click to cancel follow request' },
+  blocked: { id: 'account.blocked', defaultMessage: 'Blocked' },
 });
 
 class Avatar extends ImmutablePureComponent {
@@ -92,6 +93,12 @@ export default class Header extends ImmutablePureComponent {
         actionBtn = (
           <div className='account--action-button'>
             <IconButton size={26} active icon='hourglass' title={intl.formatMessage(messages.requested)} onClick={this.props.onFollow} />
+          </div>
+        );
+      } else if (account.getIn(['relationship', 'blocked'])) {
+        actionBtn = (
+          <div className='account--action-button'>
+            <IconButton size={26} active icon='lock' title={intl.formatMessage(messages.blocked)} onClick={this.props.onFollow} />
           </div>
         );
       } else if (!account.getIn(['relationship', 'blocking'])) {

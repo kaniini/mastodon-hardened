@@ -165,7 +165,7 @@ class FeedManager
     check_for_blocks = [status.account.domain]
     check_for_blocks.concat([status.reblog.account.domain]) if status.reblog?
 
-    return true if AccountDomainBlock.where(account_id: receiver_id, domain: status.account.domain).any?
+    return true if AccountDomainBlock.where(account_id: receiver_id, domain: check_for_blocks).any?
 
     if status.reply? && !status.in_reply_to_account_id.nil?                                                              # Filter out if it's a reply
       should_filter   = !Follow.where(account_id: receiver_id, target_account_id: status.in_reply_to_account_id).exists? # and I'm not following the person it's a reply to

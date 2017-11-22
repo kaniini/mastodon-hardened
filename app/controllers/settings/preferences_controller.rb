@@ -42,6 +42,7 @@ class Settings::PreferencesController < ApplicationController
       :setting_reduce_motion,
       :setting_system_font_ui,
       :setting_noindex,
+      :setting_reciprocate_blocks,
       :setting_theme,
       notification_emails: %i(follow follow_request reblog favourite mention digest),
       interactions: %i(must_be_follower must_be_following)

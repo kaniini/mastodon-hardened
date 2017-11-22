@@ -1,3 +1,15 @@
+Mastodon Hardened
+=================
+
+This is a (hopefully) friendly fork of Mastodon implementing improved abuse mitigations and other security
+hardening improvements.
+
+This tree is frequently rebased ontop of Mastodon `master`, but is kept in a state where continuous deployment
+should not expose any major issues.
+
+A discussion of differences between Mastodon and Mastodon Hardened is [available](http://github.com/kaniini/mastodon-hardened/blob/master/HARDENED.md).
+
+
 ![Mastodon](https://i.imgur.com/NhZc40l.png)
 ========
 

@@ -153,6 +153,7 @@ class FeedManager
     check_for_blocks = [status.account_id]
     check_for_blocks.concat(status.mentions.pluck(:account_id))
     check_for_blocks.concat([status.reblog.account_id]) if status.reblog?
+    check_for_blocks.concat([status.in_reply_to_account_id]) if status.reply? && !status.in_reply_to_account_id.nil?
 
     return true if Mute.where(account_id: receiver_id, target_account_id: check_for_blocks).any?
     return true if Block.where(account_id: receiver_id, target_account_id: check_for_blocks).any?
@@ -161,16 +162,15 @@ class FeedManager
     return true if Block.where(account_id: check_for_blocks, target_account_id: receiver_id).any?
 
     # ... or if the status originates from a blocked domain.
-    return true if AccountDomainBlock.where(account_id: receiver_id, domain: status.account.domain).exists?
+    check_for_blocks = [status.account.domain]
+    check_for_blocks.concat([status.reblog.account.domain]) if status.reblog?
+
+    return true if AccountDomainBlock.where(account_id: receiver_id, domain: status.account.domain).any?
 
     if status.reply? && !status.in_reply_to_account_id.nil?                                                              # Filter out if it's a reply
       should_filter   = !Follow.where(account_id: receiver_id, target_account_id: status.in_reply_to_account_id).exists? # and I'm not following the person it's a reply to
       should_filter &&= receiver_id != status.in_reply_to_account_id                                                     # and it's not a reply to me
       should_filter &&= status.account_id != status.in_reply_to_account_id                                               # and it's not a self-reply
-      return should_filter
-    elsif status.reblog?                                                                                                 # Filter out a reblog
-      should_filter   = Block.where(account_id: status.reblog.account_id, target_account_id: receiver_id).exists?        # or if the author of the reblogged status is blocking me
-      should_filter ||= AccountDomainBlock.where(account_id: receiver_id, domain: status.reblog.account.domain).exists?  # or the author's domain is blocked
       return should_filter
     end
 

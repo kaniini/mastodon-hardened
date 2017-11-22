@@ -149,15 +149,19 @@ class FeedManager
     return false if receiver_id == status.account_id
     return true  if status.reply? && (status.in_reply_to_id.nil? || status.in_reply_to_account_id.nil?)
 
-    check_for_mutes = [status.account_id]
-    check_for_mutes.concat([status.reblog.account_id]) if status.reblog?
-
-    return true if Mute.where(account_id: receiver_id, target_account_id: check_for_mutes).any?
-
-    check_for_blocks = status.mentions.pluck(:account_id)
+    # filter out *anything* where i am muting or blocking any participant
+    check_for_blocks = [status.account_id]
+    check_for_blocks.concat(status.mentions.pluck(:account_id))
     check_for_blocks.concat([status.reblog.account_id]) if status.reblog?
 
+    return true if Mute.where(account_id: receiver_id, target_account_id: check_for_blocks).any?
     return true if Block.where(account_id: receiver_id, target_account_id: check_for_blocks).any?
+
+    # filter out *anything* where any participant is blocking me (an implicit mute by me if they block me)...
+    return true if Block.where(account_id: check_for_blocks, target_account_id: receiver_id).any?
+
+    # ... or if the status originates from a blocked domain.
+    return true if AccountDomainBlock.where(account_id: receiver_id, domain: status.account.domain).exists?
 
     if status.reply? && !status.in_reply_to_account_id.nil?                                                              # Filter out if it's a reply
       should_filter   = !Follow.where(account_id: receiver_id, target_account_id: status.in_reply_to_account_id).exists? # and I'm not following the person it's a reply to

@@ -14,8 +14,8 @@ en:
           one: <span class="note-counter">1</span> character left
           other: <span class="note-counter">%{count}</span> characters left
         setting_noindex: Affects your public profile and status pages
-        setting_theme: Affects how Mastodon looks when you're logged in from any device.
         setting_reciprocate_blocks: Automatically block users back which block your account
+        setting_theme: Affects how Mastodon looks when you're logged in from any device.
       imports:
         data: CSV file exported from another Mastodon instance
       sessions:
@@ -45,11 +45,11 @@ en:
         setting_default_sensitive: Always mark media as sensitive
         setting_delete_modal: Show confirmation dialog before deleting a toot
         setting_noindex: Opt-out of search engine indexing
+        setting_reciprocate_blocks: Reciprocate blocks
         setting_reduce_motion: Reduce motion in animations
         setting_system_font_ui: Use system's default font
         setting_theme: Site theme
         setting_unfollow_modal: Show confirmation dialog before unfollowing someone
-        setting_reciprocate_blocks: Reciprocate blocks
         severity: Severity
         type: Import type
         username: Username

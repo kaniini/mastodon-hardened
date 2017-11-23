@@ -77,8 +77,10 @@ module AccountInteractions
   def block!(other_account, reciprocal: nil)
     reciprocal = false if reciprocal.nil?
     if !reciprocal && other_account.user.setting_reciprocate_blocks
+      other_account.unfollow(self) if other_account.following?(self)
       other_account.block!(self, reciprocal: true)
     end
+
     block_relationships.find_or_create_by!(target_account: other_account)
   end
 

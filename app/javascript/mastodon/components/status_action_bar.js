@@ -119,7 +119,7 @@ export default class StatusActionBar extends ImmutablePureComponent {
 
     const mutingConversation = status.get('muted');
     const anonymousAccess    = !me;
-    const publicStatus       = ['public', 'unlisted'].includes(status.get('visibility'));
+    const publicStatus       = ['public', 'unlisted', 'local'].includes(status.get('visibility'));
 
     let menu = [];
     let reblogIcon = 'retweet';

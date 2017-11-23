@@ -139,6 +139,8 @@ const privacyPreference = (a, b) => {
     return 'private';
   } else if (a === 'unlisted' || b === 'unlisted') {
     return 'unlisted';
+  } else if (a === 'local' || b === 'local') {
+    return 'local';
   } else {
     return 'public';
   }

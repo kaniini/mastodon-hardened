@@ -592,6 +592,14 @@
         "id": "privacy.unlisted.long"
       },
       {
+        "defaultMessage": "Local-only",
+        "id": "privacy.local.short",
+      },
+      {
+        "defaultMessage": "Post to local users only",
+        "id": "privacy.local.long",
+      },
+      {
         "defaultMessage": "Followers-only",
         "id": "privacy.private.short"
       },

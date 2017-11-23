@@ -57,6 +57,13 @@ Note: Block notification suppression does mean that the abusers may be able to v
 newly published statuses on multi-user servers.
 
 
+### Local (unfederated) status visibility
+
+Mastodon Hardened adds a new federation visibility setting which allows for excluding
+statuses from federation.  This is mainly intended for instance-specific news that is
+uninteresting when federated.
+
+
 ## Design goals
 
 * Unintended redistributions of statuses to the general public should be considered

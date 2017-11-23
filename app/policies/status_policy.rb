@@ -10,12 +10,18 @@ class StatusPolicy < ApplicationPolicy
       owned? || record.mentions.where(account: current_account).exists?
     elsif private?
       owned? || current_account&.following?(author) || record.mentions.where(account: current_account).exists?
-    elsif !current_account.nil? && author.blocking?(current_account)
+    elsif local?
+      owned? || current_account&.local?
+    elsif !current_account.nil? && blocked?
       deadline = Block.select('updated_at').where(account_id: author.id, target_account_id: current_account.id).first.updated_at
       record.updated_at <= deadline
     else
-      current_account.nil? || !author.blocking?(current_account)
+      current_account.nil? || !blocked?
     end
+  end
+
+  def blocked?
+    author.blocking?(current_account)
   end
 
   def reblog?
@@ -44,6 +50,10 @@ class StatusPolicy < ApplicationPolicy
 
   def private?
     record.private_visibility?
+  end
+
+  def local?
+    record.local_visibility?
   end
 
   def author

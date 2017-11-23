@@ -31,7 +31,7 @@ class Status < ApplicationRecord
   include Cacheable
   include StatusThreadingConcern
 
-  enum visibility: [:public, :unlisted, :private, :direct], _suffix: :visibility
+  enum visibility: [:public, :unlisted, :private, :direct, :local], _suffix: :visibility
 
   belongs_to :application, class_name: 'Doorkeeper::Application'
 
@@ -123,7 +123,7 @@ class Status < ApplicationRecord
   end
 
   def hidden?
-    private_visibility? || direct_visibility?
+    private_visibility? || direct_visibility? || local_visibility?
   end
 
   def non_sensitive_with_media?
@@ -219,6 +219,9 @@ class Status < ApplicationRecord
       elsif account.id == target_account.id # author can see own stuff
         all
       else
+        # local users can see local-only statuses
+        visibility.push(:local) if account.local?
+
         # followers can see followers-only stuff, but also things they are mentioned in.
         # non-followers can see everything that isn't private/direct, but can see stuff they are mentioned in.
         visibility.push(:private) if account.following?(target_account)

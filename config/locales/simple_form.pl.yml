@@ -18,6 +18,7 @@ pl:
           one: Pozostał <span class="name-counter">1</span> znak.
           other: Pozostało <span class="name-counter">%{count}</span> znaków
         setting_noindex: Wpływa na widoczność strony profilu i Twoich wpisów
+        setting_reciprocate_blocks: Automatycznie blokuj użytkowników, którzy Cię zablokują
         setting_theme: Zmienia wygląd Mastodona po zalogowaniu z dowolnego urządzenia.
       imports:
         data: Plik CSV wyeksportowany z innej instancji Mastodona
@@ -48,6 +49,7 @@ pl:
         setting_default_sensitive: Zawsze oznaczaj zawartość multimedialną jako wrażliwą
         setting_delete_modal: Pytaj o potwierdzenie przed usunięciem wpisu
         setting_noindex: Nie indeksuj mojego profilu w wyszukiwarkach internetowych
+        setting_reciprocate_blocks: Odwzajemniaj blokady
         setting_reduce_motion: Ogranicz ruch w animacjach
         setting_system_font_ui: Używaj domyślnej czcionki systemu
         setting_theme: Motyw strony

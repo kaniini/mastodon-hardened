@@ -26,6 +26,7 @@ class UserSettingsDecorator
     user.settings['reduce_motion']       = reduce_motion_preference if change?('setting_reduce_motion')
     user.settings['system_font_ui']      = system_font_ui_preference if change?('setting_system_font_ui')
     user.settings['noindex']             = noindex_preference if change?('setting_noindex')
+    user.settings['reciprocate_blocks']  = reciprocate_blocks_preference if change?('setting_reciprocate_blocks')
     user.settings['theme']               = theme_preference if change?('setting_theme')
   end
 
@@ -71,6 +72,10 @@ class UserSettingsDecorator
 
   def noindex_preference
     boolean_cast_setting 'setting_noindex'
+  end
+
+  def reciprocate_blocks_preference
+    boolean_cast_setting 'setting_reciprocate_blocks'
   end
 
   def theme_preference

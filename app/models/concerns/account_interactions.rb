@@ -74,10 +74,11 @@ module AccountInteractions
     active_relationships.find_or_create_by!(target_account: other_account)
   end
 
-  def block!(other_account, reciprocal: false)
-#    if !reciprocal && other_account.user.setting_reciprocate_blocks
-#      other_account.block!(self, true)
-#    end
+  def block!(other_account, reciprocal: nil)
+    reciprocal = false if reciprocal.nil?
+    if !reciprocal && other_account.user.setting_reciprocate_blocks
+      other_account.block!(self, reciprocal: true)
+    end
     block_relationships.find_or_create_by!(target_account: other_account)
   end
 
